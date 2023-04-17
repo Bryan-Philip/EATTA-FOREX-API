@@ -27,7 +27,7 @@ public class EATTAForexController {
     }
 
     @GetMapping
-    public String getForexRates(Model model, @RequestParam @Nullable String base) {
+    public String getForexRates(Model model, @RequestParam @Nullable String base, @RequestParam @Nullable Double amount) {
         try {
             ForexAPIResponse forexAPIResponse = forexAPI.callForexAPI(base == null ? DEFAULT_BASE : base);
             Map<String, Double> rates = forexAPIResponse.getRates();
@@ -35,7 +35,11 @@ public class EATTAForexController {
             List<ForexDTO> forexDTOList = new ArrayList<>();
             rates.keySet().forEach(e -> {
                 System.out.println("Base: " + base + ", Currency: " + e + ", Rate: " + rates.get(e));
-                forexDTOList.add(new ForexDTO(base == null ? DEFAULT_BASE : base, e, rates.get(e)));
+                if (null == amount) {
+                    forexDTOList.add(new ForexDTO(base == null ? DEFAULT_BASE : base, e, rates.get(e)));
+                } else {
+                    forexDTOList.add(new ForexDTO(base == null ? DEFAULT_BASE : base, e, amount * rates.get(e)));
+                }
             });
             model.addAttribute("rates", forexDTOList);
         } catch (Exception e) {
